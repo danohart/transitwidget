@@ -1,0 +1,17 @@
+{
+  "name": "transitwidget",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild widget/src/widget.js --bundle --minify --outfile=public/widget.js",
+    "seed": "node --env-file=.env.local scripts/seed-bus-stops.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}

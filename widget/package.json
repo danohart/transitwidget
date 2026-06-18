@@ -1,0 +1,12 @@
+{
+  "name": "transitwidget-widget",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/widget.js --bundle --minify --outfile=dist/widget.js",
+    "dev": "esbuild src/widget.js --bundle --outfile=dist/widget.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TransitWidget Test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f0f0f0;
+        display: flex;
+        gap: 32px;
+        padding: 40px;
+        flex-wrap: wrap;
+      }
+      .col {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      h3 {
+        margin: 0;
+        font-size: 13px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="col">
+      <script
+        src="http://localhost:3000/widget.js"
+        data-site-key="33a3ec60-e7b7-48f1-a268-9810c7c4b78b"
+      ></script>
+      <h3>Light theme</h3>
+      <script
+        src="http://localhost:3000/widget.js"
+        data-site-key="d70ba759-e173-428a-b0c5-36493f076041"
+        data-theme="light"
+      ></script>
+    </div>
+
+    <div class="col">
+      <h3>Dark theme</h3>
+      <script
+        src="http://localhost:3000/widget.js"
+        data-site-key="d70ba759-e173-428a-b0c5-36493f076041"
+        data-theme="dark"
+      ></script>
+    </div>
+  </body>
+</html>

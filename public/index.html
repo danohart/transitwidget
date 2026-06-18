@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TransitWidget — Add your venue</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 40px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: #00a1de;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+    }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+    }
+    .logo-text span { color: #00a1de; }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #111;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 18px;
+    }
+    input[type="text"]:focus { border-color: #00a1de; }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background: #00a1de;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button[type="submit"]:hover { background: #0090c5; }
+    button[type="submit"]:disabled { background: #b0d9f0; cursor: not-allowed; }
+
+    .result {
+      display: none;
+      margin-top: 28px;
+      padding: 20px;
+      background: #f0f9ff;
+      border: 1.5px solid #b3dffa;
+      border-radius: 10px;
+    }
+    .result h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 8px;
+    }
+    .result p {
+      font-size: 13px;
+      color: #444;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .preview-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin: 20px 0 10px;
+    }
+    #widget-preview {
+      display: flex;
+      justify-content: center;
+    }
+    .snippet-wrap { position: relative; }
+    .snippet {
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 12px;
+      background: #1e1e1e;
+      color: #9cdcfe;
+      padding: 14px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #333;
+      color: #ccc;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #444; }
+    .copy-btn.copied { background: #009b3a; color: #fff; }
+
+    .error {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: #fff5f5;
+      border: 1.5px solid #fca5a5;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #b91c1c;
+    }
+
+    .how-it-works {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+    .how-it-works h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      color: #444;
+      line-height: 1.5;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #00a1de;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🚇</div>
+      <div class="logo-text">Transit<span>Widget</span></div>
+    </div>
+
+    <h1>Add your venue</h1>
+    <p class="subtitle">
+      Get a free embed snippet that shows your visitors exactly how to get to you by CTA — no driving, no parking stress.
+    </p>
+
+    <form id="register-form">
+      <label for="venue-name">Venue name</label>
+      <input type="text" id="venue-name" name="name" placeholder="e.g. The Hideout" required />
+
+      <label for="venue-address">Street address</label>
+      <input type="text" id="venue-address" name="address" placeholder="e.g. 1354 W Wabansia Ave, Chicago, IL" required />
+
+      <button type="submit" id="submit-btn">Generate embed code</button>
+    </form>
+
+    <div class="error" id="error-box"></div>
+
+    <div class="result" id="result-box">
+      <h2>Your embed code is ready</h2>
+      <p>Paste this snippet anywhere in your website's HTML where you want the transit widget to appear.</p>
+      <div class="snippet-wrap">
+        <pre class="snippet" id="snippet-text"></pre>
+        <button class="copy-btn" id="copy-btn">Copy</button>
+      </div>
+      <div class="preview-label">Preview</div>
+      <div id="widget-preview"></div>
+    </div>
+
+    <div class="how-it-works">
+      <h3>How it works</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>Enter your venue's address above and click Generate.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>Copy the <code>&lt;script&gt;</code> snippet and paste it into your website — works on any platform (Squarespace, Wix, Webflow, WordPress, custom HTML).</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>Visitors see nearby L and bus stops automatically — no typing, no app, just show up.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/widget.js"></script>
+  <script>
+    const API_BASE = '';
+
+    const form      = document.getElementById('register-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultBox = document.getElementById('result-box');
+    const errorBox  = document.getElementById('error-box');
+    const snippetEl = document.getElementById('snippet-text');
+    const copyBtn   = document.getElementById('copy-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      resultBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Looking up transit stops…';
+
+      const name    = document.getElementById('venue-name').value.trim();
+      const address = document.getElementById('venue-address').value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/venues`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, address }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+        snippetEl.textContent = data.embedSnippet;
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        const previewEl = document.getElementById('widget-preview');
+        previewEl.innerHTML = '';
+        const previewContainer = document.createElement('div');
+        previewEl.appendChild(previewContainer);
+        TransitWidget.render(previewContainer, { siteKey: data.siteKey, api: window.location.origin });
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generate embed code';
+      }
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(snippetEl.textContent).then(() => {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
