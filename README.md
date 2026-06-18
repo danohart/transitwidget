@@ -6,7 +6,7 @@ Paste one `<script>` tag on your website. Visitors instantly see the nearest L s
 
 ```
 ┌─────────────────────────────────────┐
-│ 🚇 Get here by transit              │
+│ 🚆 Get here by transit              │
 ├─────────────────────────────────────┤
 │ L TRAIN                             │
 │ ● Damen (Blue Line)  · 0.2 mi      │
@@ -25,16 +25,15 @@ Paste one `<script>` tag on your website. Visitors instantly see the nearest L s
 
 ## How it works
 
-1. A venue owner registers their address at the dashboard → gets a unique `site-key`
+1. A venue owner registers their address at `/` → gets a unique `site-key`
 2. They paste one `<script>` tag into their website HTML
-3. The widget fetches nearby CTA stops from the backend (cached 24 hrs) and renders inline
+3. The widget fetches nearby CTA stops from the API (cached 24 hrs) and renders inline
 4. Visitors see transit options on page load — zero interaction required
 
 **Data sources (no per-request cost)**
 - L stops & lines: [Chicago Open Data Portal](https://data.cityofchicago.org/resource/8pix-ypme.json) (Socrata spatial query)
-- Bus stops: [Chicago Open Data Portal](https://data.cityofchicago.org/resource/d5bx-dr8z.json)
+- Bus stops: seeded from CTA Bus Tracker API into Neon Postgres
 - Geocoding: [Nominatim / OpenStreetMap](https://nominatim.openstreetmap.org/) (free, no key)
-- Real-time arrivals (optional): CTA Train Tracker + Bus Tracker APIs
 
 ---
 
@@ -42,29 +41,31 @@ Paste one `<script>` tag on your website. Visitors instantly see the nearest L s
 
 ```
 transitwidget/
-├── backend/          # Node/Express API server
-│   ├── src/
-│   │   ├── index.js            # Server entry point
-│   │   ├── db.js               # SQLite setup
-│   │   ├── routes/
-│   │   │   ├── venues.js       # POST /api/venues, GET /api/venues
-│   │   │   └── nearby.js       # GET /api/nearby/:siteKey
-│   │   └── services/
-│   │       ├── cta.js          # CTA API + Chicago Open Data queries
-│   │       ├── geocode.js      # Nominatim geocoding
-│   │       └── nearby.js       # Distance calc + stop formatting
-│   ├── .env.example
-│   └── package.json
+├── api/
+│   ├── venues.js               # POST /api/venues, GET /api/venues
+│   └── nearby/
+│       └── [siteKey].js        # GET /api/nearby/:siteKey
 │
-├── widget/           # Embeddable vanilla JS widget
-│   ├── src/
-│   │   └── widget.js           # Source (no framework, no dependencies)
-│   ├── dist/
-│   │   └── widget.js           # Built/minified output (serve this)
-│   └── package.json
+├── lib/
+│   ├── db.js                   # Neon Postgres client + schema init
+│   ├── cta.js                  # CTA line definitions + Open Data queries
+│   ├── geocode.js              # Nominatim geocoding
+│   ├── busCache.js             # Bus stop spatial queries
+│   └── nearby.js               # Stop aggregation + distance calc
 │
-└── dashboard/        # Venue registration UI
-    └── index.html    # Single-page form → generates embed snippet
+├── widget/
+│   └── src/
+│       └── widget.js           # Widget source (no framework, no dependencies)
+│
+├── public/
+│   ├── index.html              # Venue registration UI
+│   └── widget.js               # Built/minified widget (output of npm run build)
+│
+├── scripts/
+│   └── seed-bus-stops.js       # One-time bus stop seeder
+│
+├── vercel.json
+└── package.json
 ```
 
 ---
@@ -74,55 +75,47 @@ transitwidget/
 ### Prerequisites
 
 - Node.js 18+
+- [Vercel CLI](https://vercel.com/docs/cli): `npm i -g vercel`
 - CTA API keys (free) — register at [transitchicago.com/developers](https://www.transitchicago.com/developers/)
+- A [Neon](https://neon.tech) Postgres database
 
-### 1. Configure environment
+### 1. Install dependencies
 
 ```bash
-cp backend/.env.example backend/.env
+npm install
 ```
 
-Edit `backend/.env`:
+### 2. Configure environment
+
+Create `.env.local` in the project root:
 
 ```
+DATABASE_URL=postgresql://...
 CTA_TRAIN_API=your_train_tracker_key
 CTA_BUS_API=your_bus_tracker_key
-PORT=3000
 ```
 
-### 2. Install dependencies
+### 3. Seed bus stops
+
+Run once before first use (takes ~90 seconds):
 
 ```bash
-cd backend && npm install
-cd ../widget && npm install
+npm run seed
 ```
 
-### 3. Build the widget
+### 4. Build the widget
 
 ```bash
-cd widget
-npm run build        # produces widget/dist/widget.js
+npm run build        # outputs public/widget.js
 ```
 
-For development with auto-rebuild on save:
+### 5. Run locally
 
 ```bash
-npm run dev
+vercel dev
 ```
 
-### 4. Start the backend
-
-```bash
-cd backend
-npm start            # production
-npm run dev          # auto-restarts on file changes (Node 18+)
-```
-
-The API runs at `http://localhost:3000`.
-
-### 5. Open the dashboard
-
-Open `dashboard/index.html` in a browser (or serve it statically alongside the backend). Enter a venue name and Chicago address to generate an embed snippet.
+The app runs at `http://localhost:3000`. The registration UI is at `/`.
 
 ---
 
@@ -189,7 +182,7 @@ Returns nearby transit stops for a registered venue. Cached for 24 hours.
 
 ### `GET /api/venues`
 
-List all registered venues (used by the dashboard).
+List all registered venues.
 
 ---
 
@@ -214,9 +207,9 @@ List all registered venues (used by the dashboard).
 ></script>
 ```
 
-### Self-hosted backend
+### Custom API origin
 
-If you're running the backend somewhere other than `transitwidget.com`, point the widget at it:
+If your API is on a different domain than the widget JS:
 
 ```html
 <script
@@ -226,7 +219,7 @@ If you're running the backend somewhere other than `transitwidget.com`, point th
 ></script>
 ```
 
-The widget inserts itself immediately after the `<script>` tag in the DOM, so placement is intentional — put the tag wherever you want the widget to appear on the page.
+The widget inserts itself immediately after the `<script>` tag in the DOM — place it wherever you want it to appear on the page.
 
 ---
 
@@ -245,10 +238,11 @@ The widget inserts itself immediately after the `<script>` tag in the DOM, so pl
 
 ---
 
-## Deployment notes
+## Deployment
 
-- Serve `widget/dist/widget.js` as a static file from your backend or a CDN
-- The SQLite database file (`transitwidget.db`) is created automatically on first run in the project root
-- Stop cache TTL is 24 hours — transit stop locations rarely change, so this is safe
-- Nominatim geocoding is called once per venue registration and the result is stored; no ongoing cost or rate-limit exposure
-- For production, put the backend behind a reverse proxy (nginx/Caddy) with HTTPS and serve the widget JS with aggressive cache headers (`Cache-Control: public, max-age=86400`)
+This project is deployed on Vercel. Push to `main` to deploy.
+
+- Static files in `public/` are served at the root
+- `api/**/*.js` are deployed as serverless functions
+- Run `npm run build` before deploying if you've changed `widget/src/widget.js`
+- Bus stop data lives in Neon and does not need to be re-seeded on deploy
