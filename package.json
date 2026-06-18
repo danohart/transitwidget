@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild widget/src/widget.js --bundle --minify --outfile=public/widget.js",
-    "seed": "node --env-file=.env.local scripts/seed-bus-stops.js",
-    "dev": "vercel dev"
+    "seed": "node --env-file=.env.local scripts/seed-bus-stops.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",
