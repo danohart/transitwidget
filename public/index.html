@@ -47,7 +47,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: #000;
         font-size: 20px;
       }
       .logo-text {
@@ -141,7 +141,7 @@
         width: 100%;
         padding: 12px;
         background: #00a1de;
-        color: #fff;
+        color: #000;
         border: none;
         border-radius: 8px;
         font-size: 15px;
@@ -219,7 +219,7 @@
       }
       .copy-btn.copied {
         background: #009b3a;
-        color: #fff;
+        color: #000;
       }
 
       .error {
@@ -264,7 +264,7 @@
         height: 22px;
         border-radius: 50%;
         background: #00a1de;
-        color: #fff;
+        color: #000;
         font-size: 11px;
         font-weight: 700;
         display: flex;
@@ -285,7 +285,7 @@
       <h1>Add your venue</h1>
       <p class="subtitle">
         Get a free embed snippet that shows your visitors exactly how to get to
-        you by CTA — no driving, no parking stress.
+        you by CTA - no driving, no parking stress.
       </p>
 
       <form id="register-form">
@@ -390,14 +390,14 @@
         previewEl.appendChild(previewContainer);
         TransitWidget.render(previewContainer, {
           siteKey: currentSiteKey,
-          api: window.location.origin,
+          api: globalThis.location.origin,
           theme: getTheme(),
         });
       }
 
       darkToggle.addEventListener("change", () => {
         if (!currentSiteKey) return;
-        const host = window.location.origin;
+        const host = globalThis.location.origin;
         snippetEl.textContent = buildSnippet(currentSiteKey, host);
         refreshPreview();
       });

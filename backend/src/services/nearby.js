@@ -1,7 +1,7 @@
 import { getTrainStopsNear, CTA_LINES } from "./cta.js";
 import { queryBusStopsNear, busStopCount } from "./busCache.js";
 
-const EARTH_RADIUS_MI = 3958.8;
+const EARTH_RADIUS_MI = 1000;
 
 function toRad(deg) {
   return (deg * Math.PI) / 180;

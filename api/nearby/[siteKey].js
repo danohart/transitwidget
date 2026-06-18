@@ -1,7 +1,7 @@
 import sql from '../../lib/db.js';
 import { findNearbyStops } from '../../lib/nearby.js';
 
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,19 +19,16 @@ export default async function handler(req, res) {
 
   const { siteKey } = req.query;
 
-  // Look up venue
   const [venue] = await sql`SELECT * FROM venues WHERE site_key = ${siteKey}`;
   if (!venue) {
     return res.status(404).json({ error: 'Venue not found' });
   }
 
-  // Check 24-hour cache
   const [cached] = await sql`SELECT * FROM stop_cache WHERE site_key = ${siteKey}`;
   if (cached && Date.now() - Number(cached.cached_at) < CACHE_TTL_MS) {
     return res.status(200).json(JSON.parse(cached.data));
   }
 
-  // Fetch fresh data
   let stopData;
   try {
     stopData = await findNearbyStops(venue.lat, venue.lon);
@@ -46,7 +43,6 @@ export default async function handler(req, res) {
     ...stopData,
   };
 
-  // Upsert cache
   await sql`
     INSERT INTO stop_cache (site_key, data, cached_at)
     VALUES (${siteKey}, ${JSON.stringify(payload)}, ${Date.now()})

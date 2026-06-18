@@ -1,17 +1,3 @@
-/**
- * seed-bus-stops.js
- *
- * Fetches all CTA bus stops via the Bus Tracker API and stores them in Neon.
- * Run once before deploying, and re-run monthly or when CTA changes routes.
- *
- * Usage:
- *   node --env-file=.env.local scripts/seed-bus-stops.js
- *
- * Requires in .env.local:
- *   DATABASE_URL=postgres://...
- *   CTA_BUS_API=your_key
- */
-
 import { neon } from '@neondatabase/serverless';
 import { initSchema } from '../lib/db.js';
 import { getBusRoutes, getSelectedBusDirection, getSelectedBusStops } from '../lib/cta.js';
@@ -58,7 +44,7 @@ async function loadRouteStops(routeId) {
       if (!stops?.length) continue;
       await upsertStops(stops, routeId);
     } catch {
-      // skip on error
+      return;
     }
   }
 }

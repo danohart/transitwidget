@@ -1,9 +1,6 @@
 (function () {
   'use strict';
 
-  // ---------------------------------------------------------------------------
-  // Styles — generated per theme so both can coexist on the same page
-  // ---------------------------------------------------------------------------
   function buildStyles(theme) {
     const dark = theme === 'dark';
     return `
@@ -112,9 +109,6 @@
     document.head.appendChild(style);
   }
 
-  // ---------------------------------------------------------------------------
-  // DOM helpers
-  // ---------------------------------------------------------------------------
   function el(tag, attrs, ...children) {
     const node = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
@@ -129,9 +123,6 @@
     return node;
   }
 
-  // ---------------------------------------------------------------------------
-  // Rendering
-  // ---------------------------------------------------------------------------
   function renderTrainStop(stop) {
     const pills = stop.lines.map((line) =>
       el('span', { class: 'tw-pill', style: `background:${line.color}` }, line.name)
@@ -202,9 +193,6 @@
     children.forEach((c) => container.appendChild(c));
   }
 
-  // ---------------------------------------------------------------------------
-  // Core mount — shared by both script-tag auto-init and programmatic API
-  // ---------------------------------------------------------------------------
   function mount(container, siteKey, apiBase, theme) {
     injectStyles(theme);
     container.className = 'tw-widget';
@@ -222,9 +210,6 @@
       });
   }
 
-  // ---------------------------------------------------------------------------
-  // Script-tag auto-init
-  // ---------------------------------------------------------------------------
   const scriptTag = document.currentScript;
   if (scriptTag) {
     const siteKey = scriptTag.getAttribute('data-site-key');
@@ -245,10 +230,6 @@
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Programmatic API — for dashboards, previews, React apps, etc.
-  // TransitWidget.render(containerEl, { siteKey, api, theme })
-  // ---------------------------------------------------------------------------
   window.TransitWidget = {
     render(container, { siteKey, api, theme = 'light' } = {}) {
       if (!siteKey) { console.warn('[TransitWidget] render() requires siteKey'); return; }
